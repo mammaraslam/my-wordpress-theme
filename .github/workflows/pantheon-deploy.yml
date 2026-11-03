@@ -24,13 +24,26 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -p 2222 codeserver.dev.8d81a451-b004-4498-a6b0-2fdfd984d138.drush.in >> ~/.ssh/known_hosts
 
+      - name: Debug SSH
+        env:
+          PANTHEON_GIT_URL: ${{ secrets.PANTHEON_GIT_URL }}
+        run: |
+          echo "--- Keys loaded in ssh-agent (fingerprints) ---"
+          ssh-add -l || true
+          echo "--- Public key(s) for the loaded private key ---"
+          ssh-add -L || true
+          echo "--- ~/.ssh contents ---"
+          ls -la ~/.ssh
+          echo "--- Test connection to Pantheon ---"
+          GIT_SSH_COMMAND="ssh -vvv" git ls-remote "$PANTHEON_GIT_URL" || true
+
       - name: Deploy Theme to Pantheon
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
 
           # Clone the Pantheon repository using the secret URL
-          git clone ${{ secrets.PANTHEON_GIT_URL }} pantheon-repo
+          git clone "${{ secrets.PANTHEON_GIT_URL }}" pantheon-repo
           cd pantheon-repo
 
           # Create the Astra theme directory if it doesn't exist
