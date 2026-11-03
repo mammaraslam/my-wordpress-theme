@@ -1,10 +1,8 @@
 <?php
 /**
-* Template Name: Custom Landing Page
-* Description: Acustom landing pge templte.
-*/
+ * Template Name: Custom Landing Page
+ */
 get_header(); ?>
-
 <main id="primary" class="site-main">
     <div class="custom-template-content">
         <?php
