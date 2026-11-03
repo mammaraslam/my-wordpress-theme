@@ -36,8 +36,8 @@ jobs:
           # Create the Astra theme directory if it doesn't exist
           mkdir -p wp-content/themes/astra
 
-          # Copy all theme files from the GitHub workspace into Pantheon's theme directory
-          rsync -av --exclude='.git' --exclude='.github' ../ wp-content/themes/astra/
+          # Copy theme files correctly from workspace root
+          rsync -av --exclude='.git' --exclude='.github' ./ wp-content/themes/astra/
 
           # Stage, commit, and push changes to Pantheon
           git add wp-content/themes/astra
@@ -46,6 +46,6 @@ jobs:
           if git diff-index --quiet HEAD; then
             echo "No changes to deploy."
           else
-            git commit -m "Automated sync: Update Astra theme files"
+            git commit -m "Automated sync: Fix theme directory path for astra"
             git push origin master
           fi
