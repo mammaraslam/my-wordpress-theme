@@ -24,7 +24,28 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -p ${{ secrets.PANTHEON_PORT }} ${{ secrets.PANTHEON_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Push Code to Pantheon Git
+      - name: Deploy Theme to Pantheon
         run: |
-          git remote add pantheon ssh://codeserver.dev.${{ secrets.PANTHEON_HOST }}@${{ secrets.PANTHEON_HOST }}:${{ secrets.PANTHEON_PORT }}/~/repository.git || true
-          git push pantheon main:master --force
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+
+          # Clone the Pantheon repository into a temporary folder
+          git clone ssh://codeserver.dev.${{ secrets.PANTHEON_HOST }}@${{ secrets.PANTHEON_HOST }}:${{ secrets.PANTHEON_PORT }}/~/repository.git pantheon-repo
+          cd pantheon-repo
+
+          # Create the Astra theme directory if it doesn't exist
+          mkdir -p wp-content/themes/astra
+
+          # Copy all theme files from the GitHub workspace into Pantheon's theme directory
+          rsync -av --exclude='.git' --exclude='.github' ../ wp-content/themes/astra/
+
+          # Stage, commit, and push changes to Pantheon
+          git add wp-content/themes/astra
+          git status
+
+          if git diff-index --quiet HEAD; then
+            echo "No changes to deploy."
+          else
+            git commit -m "Automated sync: Update Astra theme files"
+            git push origin master
+          fi
