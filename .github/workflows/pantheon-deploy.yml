@@ -22,15 +22,15 @@ jobs:
       - name: Add Pantheon Host to Known Hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -p ${{ secrets.PANTHEON_PORT }} ${{ secrets.PANTHEON_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -p 2222 codeserver.dev.8d81a451-b004-4498-a6b0-2fdfd984d138.drush.in >> ~/.ssh/known_hosts
 
       - name: Deploy Theme to Pantheon
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
 
-          # Clone the Pantheon repository using the correct host connection string
-          git clone ssh://codeserver.dev.${{ secrets.PANTHEON_HOST }}:${{ secrets.PANTHEON_PORT }}/~/repository.git pantheon-repo
+          # Clone the Pantheon repository using the secret URL
+          git clone ${{ secrets.PANTHEON_GIT_URL }} pantheon-repo
           cd pantheon-repo
 
           # Create the Astra theme directory if it doesn't exist
